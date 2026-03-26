@@ -68,28 +68,41 @@ msbuild /t:build /restore
 ### 5. Agregar al Formulario
 
 1. Edita tu formulario (ej: Account)
-2. Agrega un campo de texto (o usa uno existente)
+2. Agrega un campo de texto (o usa uno existente) — este será el campo para **Context Value**
 3. **Propiedades del campo** → **Controles** → **Agregar control**
 4. Selecciona **Action Button**
 5. Configura las propiedades:
-   - **Button Label**: "Mi Botón"
-   - **Button Type**: Primary
-   - **JavaScript Function Name**: "MyNamespace.myFunction" (opcional)
-   - **Custom API Logical Name**: "my_customapi" (opcional)
+
+| Propiedad | Descripción | Ejemplo |
+|-----------|-------------|---------|
+| **Button Label** | Texto del botón (input libre) | `"Ejecutar"` |
+| **Context Value** | Campo del formulario vinculado (se pasa a la función/API) | columna del formulario |
+| **Button Type** | `Primary` o `Secondary` | `Primary` |
+| **Shape** | `Rounded`, `Circular` o `Square` | `Rounded` |
+| **Button Size** | `Small`, `Medium` o `Large` | `Medium` |
+| **JavaScript Function Name** | Función JS a ejecutar | `"MyNS.myFunction"` |
+| **Custom API Logical Name** | API a ejecutar | `"ero_MyCustomApi"` |
+| **Fields To Send** | Campos del formulario a enviar a la API (separados por comas) | `"name,telephone1"` |
+| **Disabled** | Deshabilitar el botón | `false` |
 
 ### 6. Configurar Acción
 
 #### Opción 1: Función JavaScript
+
+La función recibe **dos parámetros**: `executionContext` y `contextValue` (valor del campo vinculado).
+
 ```javascript
 // Crear Web Resource: my_script.js
-var MyNamespace = MyNamespace || {};
+let MyNamespace = MyNamespace || {};
 
-MyNamespace.myFunction = function(executionContext) {
-    var formContext = executionContext.getFormContext();
+MyNamespace.myFunction = function(executionContext, contextValue) {
+    let formContext = executionContext.getFormContext();
+    
+    // contextValue es el valor del campo vinculado en "Context Value"
+    console.log("contextValue:", contextValue);
     
     Xrm.Navigation.openAlertDialog({
-        text: "¡Botón clickeado!",
-        title: "Éxito"
+        text: "¡Botón clickeado! Contexto: " + contextValue
     });
 };
 ```
@@ -97,7 +110,18 @@ MyNamespace.myFunction = function(executionContext) {
 - Agrégalo al formulario
 - Configura: **JavaScript Function Name** = `MyNamespace.myFunction`
 
-#### Opción 2: Custom API
+#### Opción 2: Custom API con campos del formulario
+
+```
+// Configuración del control:
+// Custom API Logical Name  = "ero_ProcessRecord"
+// Fields To Send           = "name,telephone1,emailaddress1"
+// Context Value            = (columna del formulario, p.ej. "description")
+```
+
+La Custom API recibirá como parámetros de entrada:
+- `name`, `telephone1`, `emailaddress1` → valores de los campos del formulario
+- `contextValue` → valor del campo vinculado (si está configurado)
 - Crea una Custom API en Dynamics 365
 - Configura: **Custom API Logical Name** = `my_calculatediscount`
 
@@ -148,6 +172,10 @@ npm run refreshTypes
 
 - Lee el [README.md](README.md) completo para documentación detallada
 - Revisa los ejemplos en [examples/ActionButtonExamples.js](examples/ActionButtonExamples.js)
+
+## ⚠️ Nota sobre el Diseñador de Formularios Moderno
+
+El control requiere que **Context Value** esté vinculado a un campo del formulario para funcionar en el diseñador moderno. Si ves el mensaje *"Este componente solo se puede editar en el diseñador clásico"*, asegúrate de haber vinculado ese campo. El campo puede ser cualquier columna de texto de la tabla, incluso si no la usas para nada más.
 - Personaliza el control según tus necesidades
 
 ## 🤝 Soporte

@@ -5,9 +5,11 @@ Control PCF (PowerApps Component Framework) para Dynamics 365 que proporciona un
 ## 🎯 Características
 
 - ✅ Botón personalizable con estilos FluentUI (Primary/Secondary)
-- ✅ Ejecuta funciones JavaScript personalizadas
-- ✅ Ejecuta Custom APIs de Dynamics 365
-- ✅ Totalmente configurable desde el diseñador de formularios
+- ✅ Forma configurable: Rounded, Circular o Square
+- ✅ Tamaño configurable: Small, Medium o Large
+- ✅ Ejecuta funciones JavaScript personalizadas (recibe `executionContext` y `contextValue`)
+- ✅ Ejecuta Custom APIs de Dynamics 365 con envío automático de campos del formulario
+- ✅ Totalmente configurable desde el diseñador de formularios moderno
 - ✅ Soporte para deshabilitar el botón dinámicamente
 - ✅ Manejo de errores y notificaciones al usuario
 
@@ -91,39 +93,47 @@ Una vez importado, puedes agregar el control a un formulario:
 
 El control tiene las siguientes propiedades configurables:
 
-| Propiedad | Tipo | Requerido | Descripción |
-|-----------|------|-----------|-------------|
-| **Button Label** | Texto | Sí | El texto que se mostrará en el botón |
-| **Button Type** | Enum | Sí | Estilo del botón: `Primary` o `Secondary` |
-| **JavaScript Function Name** | Texto | No | Nombre de la función JS global a ejecutar (ej: `MyNamespace.myFunction`) |
-| **Custom API Logical Name** | Texto | No | Logical name de la Custom API a ejecutar |
-| **Disabled** | Sí/No | No | Indica si el botón está deshabilitado |
+| Propiedad | Tipo | Uso | Requerido | Descripción |
+|-----------|------|-----|-----------|-------------|
+| **Button Label** | Texto | Input | Sí | Texto que se muestra en el botón |
+| **Context Value** | Texto | Bound | No | Campo del formulario cuyo valor se pasa como segundo argumento a la función JS o a la Custom API |
+| **Button Type** | Enum | Input | No | Estilo del botón: `Primary` (0) o `Secondary` (1) |
+| **Shape** | Enum | Input | No | Forma del botón: `Rounded` (0), `Circular` (1) o `Square` (2) |
+| **Button Size** | Enum | Input | No | Tamaño: `Small` (0), `Medium` (1) o `Large` (2) |
+| **JavaScript Function Name** | Texto | Input | No | Nombre de la función JS global a ejecutar (ej: `MyNS.myFunction`) |
+| **Custom API Logical Name** | Texto | Input | No | Logical name de la Custom API a ejecutar |
+| **Fields To Send** | Texto | Input | No | Nombres lógicos separados por comas de los campos del formulario que se enviarán como parámetros a la Custom API (ej: `name,telephone1,emailaddress1`) |
+| **Disabled** | Sí/No | Input | No | Indica si el botón está deshabilitado |
+
+> **Nota**: `Context Value` es un campo `Bound` (vinculado a una columna del formulario). Es necesario para que el control funcione en el **diseñador de formularios moderno**. Su valor se pasa automáticamente a la función JS y a la Custom API.
 
 ### 3. Ejemplos de configuración
 
 #### Ejemplo 1: Ejecutar una función JavaScript
 
-```javascript
-// En tu biblioteca JavaScript (Web Resource)
-var MyNamespace = MyNamespace || {};
+La función recibe dos parámetros: `executionContext` (contexto del formulario) y `contextValue` (el valor del campo vinculado).
 
-MyNamespace.validateRecord = function(executionContext) {
-    var formContext = executionContext.getFormContext();
+```javascript
+// En tu Web Resource JavaScript
+let MyNamespace = MyNamespace || {};
+
+MyNamespace.validateRecord = function(executionContext, contextValue) {
+    let formContext = executionContext.getFormContext();
     
-    // Tu lógica aquí
-    var accountName = formContext.getAttribute("name").getValue();
+    // contextValue contiene el valor del campo vinculado en "Context Value"
+    console.log("Valor del contexto:", contextValue);
+    
+    let accountName = formContext.getAttribute("name").getValue();
     
     if (!accountName) {
         Xrm.Navigation.openAlertDialog({
-            text: "Por favor, ingresa un nombre de cuenta",
-            title: "Validación"
+            text: "Por favor, ingresa un nombre de cuenta"
         });
         return;
     }
     
     Xrm.Navigation.openAlertDialog({
-        text: "Registro validado correctamente",
-        title: "Éxito"
+        text: "Registro validado correctamente"
     });
 };
 ```
@@ -131,37 +141,57 @@ MyNamespace.validateRecord = function(executionContext) {
 **Configuración del control:**
 - Button Label: `Validar Registro`
 - Button Type: `Primary`
+- Shape: `Rounded`
+- Button Size: `Medium`
 - JavaScript Function Name: `MyNamespace.validateRecord`
-- Custom API Logical Name: *(dejar vacío)*
+- Context Value: *(vincular a un campo del formulario, o dejar vacío)*
 
-#### Ejemplo 2: Ejecutar una Custom API
+#### Ejemplo 2: Ejecutar una Custom API con campos del formulario
 
-Primero, crea una Custom API en Dynamics 365:
-
-1. Ir a **Configuración** → **Personalizaciones** → **Custom Process Actions**
-2. O crear una Custom API mediante código/solution
-3. Ejemplo: `tp_CalculateDiscount` (logical name)
+Puedes enviar múltiples campos del formulario a tu Custom API usando `Fields To Send`:
 
 **Configuración del control:**
 - Button Label: `Calcular Descuento`
 - Button Type: `Primary`
-- JavaScript Function Name: *(dejar vacío)*
-- Custom API Logical Name: `tp_CalculateDiscount`
+- Custom API Logical Name: `ero_CalculateDiscount`
+- Fields To Send: `quantity,unitprice,discountpercentage`
+- Context Value: *(vincular al campo donde estará el resultado, por ejemplo `discountamount`)*
 
-#### Ejemplo 3: Deshabilitar dinámicamente el botón
+La Custom API recibirá un request con los parámetros:
+```
+quantity        → valor del campo "quantity" del formulario
+unitprice       → valor del campo "unitprice" del formulario
+discountpercentage → valor del campo "discountpercentage" del formulario
+contextValue    → valor actual del campo vinculado en "Context Value"
+```
 
-Puedes usar una regla de negocio o JavaScript para controlar la propiedad `Disabled`:
+#### Ejemplo 3: Botón circular y pequeño (icono-like)
+
+Útil para botones de acción compactos junto a otros controles:
+
+- Button Label: `✓`
+- Button Type: `Primary`
+- Shape: `Circular`
+- Button Size: `Small`
+- JavaScript Function Name: `MyNamespace.quickApprove`
+
+#### Ejemplo 4: Deshabilitar dinámicamente el botón
+
+Vincula la propiedad `Disabled` a un campo Sí/No del formulario mediante una regla de negocio, o usa la propiedad `Context Value` para pasar el estado al handler:
 
 ```javascript
-// Deshabilitar el botón si el estado es "Cerrado"
-function onLoad(executionContext) {
-    var formContext = executionContext.getFormContext();
-    var status = formContext.getAttribute("statecode").getValue();
+// El botón siempre está activo, pero la función comprueba el estado
+MyNamespace.checkAndExecute = function(executionContext, contextValue) {
+    let formContext = executionContext.getFormContext();
+    let status = formContext.getAttribute("statecode").getValue();
     
-    // Establecer el valor del campo vinculado al control
-    // Esto deshabilitará el botón si el estado es 1 (Inactivo)
-    formContext.getAttribute("yourfieldname").setDisabled(status === 1);
-}
+    if (status !== 0) {
+        Xrm.Navigation.openAlertDialog({ text: "Solo se puede ejecutar en registros activos." });
+        return;
+    }
+    
+    // Continuar con la lógica...
+};
 ```
 
 ## 🔧 Prioridad de Ejecución
