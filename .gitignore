@@ -16,6 +16,9 @@ bin/
 *.js
 *.js.map
 
+# Excepción: ejemplos de uso (no son código compilado)
+!examples/*.js
+
 # IDE
 .vscode/
 .idea/
