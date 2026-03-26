@@ -5,6 +5,12 @@ node_modules/
 out/
 dist/
 generated/
+obj/
+bin/
+
+# Archivos temporales
+*.zip
+*.binlog
 
 # TypeScript
 *.js
