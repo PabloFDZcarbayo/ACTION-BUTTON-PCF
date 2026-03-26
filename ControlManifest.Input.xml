@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="ERO" constructor="ActionButton" version="1.0.0" display-name-key="ActionButton" description-key="ActionButton" control-type="standard">
+    
+    <!-- Propiedades del control -->
+    <property name="buttonLabel" display-name-key="ButtonLabel_Display_Key" description-key="ButtonLabel_Desc_Key" of-type="SingleLine.Text" usage="input" required="true" />    
+    <property name="contextValue" display-name-key="ContextValue_Display_Key" description-key="ContextValue_Desc_Key" of-type="SingleLine.Text" usage="bound" required="false" />    
+    <property name="buttonType" display-name-key="ButtonType_Display_Key" description-key="ButtonType_Desc_Key" of-type="Enum" usage="input" required="true" default-value="0">
+      <value name="Primary" display-name-key="Primary_Display_Key">0</value>
+      <value name="Secondary" display-name-key="Secondary_Display_Key">1</value>
+    </property>
+
+    <property name="shape" display-name-key="Shape_Display_Key" description-key="Shape_Desc_Key" of-type="Enum" usage="input" required="false" default-value="0">
+      <value name="Rounded" display-name-key="Rounded_Display_Key">0</value>
+      <value name="Circular" display-name-key="Circular_Display_Key">1</value>
+      <value name="Square" display-name-key="Square_Display_Key">2</value>
+    </property>
+
+    <property name="buttonSize" display-name-key="ButtonSize_Display_Key" description-key="ButtonSize_Desc_Key" of-type="Enum" usage="input" required="false" default-value="1">
+      <value name="Small" display-name-key="Small_Display_Key">0</value>
+      <value name="Medium" display-name-key="Medium_Display_Key">1</value>
+      <value name="Large" display-name-key="Large_Display_Key">2</value>
+    </property>
+    
+    <property name="jsFunctionName" display-name-key="JSFunction" description-key="JSFunction" of-type="SingleLine.Text" usage="input" required="false" />
+    
+    <property name="customApiLogicalName" display-name-key="CustomApiName" description-key="CustomApiName" of-type="SingleLine.Text" usage="input" required="false" />
+
+    <property name="fieldsToSend" display-name-key="FieldsToSend_Display_Key" description-key="FieldsToSend_Desc_Key" of-type="SingleLine.Text" usage="input" required="false" />
+    
+    <property name="disabled" display-name-key="Disabled" description-key="Disabled" of-type="TwoOptions" usage="input" required="false" default-value="false" />
+    
+    <!-- Recursos -->
+    <resources>
+      <code path="index.ts" order="1"/>
+      <resx path="strings/ActionButton.1033.resx" version="1.0.0" />
+    </resources>
+    
+    <!-- Características del framework -->
+    <feature-usage>
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
+  </control>
+</manifest>

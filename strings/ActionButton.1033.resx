@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ActionButton_Display_Key" xml:space="preserve">
+    <value>Action Button</value>
+    <comment>Nombre del control</comment>
+  </data>
+  <data name="ActionButton_Desc_Key" xml:space="preserve">
+    <value>Botón personalizable que puede ejecutar funciones JavaScript o Custom APIs</value>
+    <comment>Descripción del control</comment>
+  </data>
+  <data name="ButtonLabel_Display_Key" xml:space="preserve">
+    <value>Button Label</value>
+    <comment>Etiqueta del botón</comment>
+  </data>
+  <data name="ButtonLabel_Desc_Key" xml:space="preserve">
+    <value>Texto que se mostrará en el botón</value>
+    <comment>Descripción de la etiqueta</comment>
+  </data>
+  <data name="ContextValue_Display_Key" xml:space="preserve">
+    <value>Context Value</value>
+    <comment>Valor de contexto vinculado a un campo</comment>
+  </data>
+  <data name="ContextValue_Desc_Key" xml:space="preserve">
+    <value>Campo de la tabla cuyo valor se pasará como argumento a la función JS o la Custom API</value>
+    <comment>Descripción del valor de contexto</comment>
+  </data>
+  <data name="ButtonType_Display_Key" xml:space="preserve">
+    <value>Button Type</value>
+    <comment>Tipo de botón</comment>
+  </data>
+  <data name="ButtonType_Desc_Key" xml:space="preserve">
+    <value>Estilo del botón (Primary o Secondary)</value>
+    <comment>Descripción del tipo de botón</comment>
+  </data>
+  <data name="Primary_Display_Key" xml:space="preserve">
+    <value>Primary</value>
+    <comment>Botón primario</comment>
+  </data>
+  <data name="Secondary_Display_Key" xml:space="preserve">
+    <value>Secondary</value>
+    <comment>Botón secundario</comment>
+  </data>
+  <data name="JSFunction_Display_Key" xml:space="preserve">
+    <value>JavaScript Function Name</value>
+    <comment>Nombre de la función JS</comment>
+  </data>
+  <data name="JSFunction_Desc_Key" xml:space="preserve">
+    <value>Nombre de la función JavaScript global a ejecutar (ej: myNamespace.myFunction)</value>
+    <comment>Descripción de la función JS</comment>
+  </data>
+  <data name="CustomApiName_Display_Key" xml:space="preserve">
+    <value>Custom API Logical Name</value>
+    <comment>Nombre lógico de la API personalizada</comment>
+  </data>
+  <data name="CustomApiName_Desc_Key" xml:space="preserve">
+    <value>Logical name de la Custom API a ejecutar</value>
+    <comment>Descripción de la Custom API</comment>
+  </data>
+  <data name="FieldsToSend_Display_Key" xml:space="preserve">
+    <value>Fields To Send</value>
+    <comment>Campos a enviar a la Custom API</comment>
+  </data>
+  <data name="FieldsToSend_Desc_Key" xml:space="preserve">
+    <value>Logical names de los campos del formulario a enviar, separados por coma (ej: ero_campo1,ero_campo2)</value>
+    <comment>Descripción de los campos a enviar</comment>
+  </data>
+  <data name="Disabled_Display_Key" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>Estado deshabilitado</comment>
+  </data>
+  <data name="Disabled_Desc_Key" xml:space="preserve">
+    <value>Indica si el botón está deshabilitado</value>
+    <comment>Descripción del estado deshabilitado</comment>
+  </data>
+  <data name="Shape_Display_Key" xml:space="preserve">
+    <value>Shape</value>
+    <comment>Forma del botón</comment>
+  </data>
+  <data name="Shape_Desc_Key" xml:space="preserve">
+    <value>Forma del botón (Rounded, Circular o Square)</value>
+    <comment>Descripción de la forma del botón</comment>
+  </data>
+  <data name="Rounded_Display_Key" xml:space="preserve">
+    <value>Rounded</value>
+  </data>
+  <data name="Circular_Display_Key" xml:space="preserve">
+    <value>Circular</value>
+  </data>
+  <data name="Square_Display_Key" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="ButtonSize_Display_Key" xml:space="preserve">
+    <value>Size</value>
+    <comment>Tamaño del botón</comment>
+  </data>
+  <data name="ButtonSize_Desc_Key" xml:space="preserve">
+    <value>Tamaño del botón (Small, Medium o Large)</value>
+    <comment>Descripción del tamaño del botón</comment>
+  </data>
+  <data name="Small_Display_Key" xml:space="preserve">
+    <value>Small</value>
+  </data>
+  <data name="Medium_Display_Key" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="Large_Display_Key" xml:space="preserve">
+    <value>Large</value>
+  </data>
+</root>
