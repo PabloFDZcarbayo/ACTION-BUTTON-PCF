@@ -103,7 +103,7 @@ El control tiene las siguientes propiedades configurables:
 | **JavaScript Function Name** | Texto | Input | No | Nombre de la función JS global a ejecutar (ej: `MyNS.myFunction`) |
 | **Custom API Logical Name** | Texto | Input | No | Logical name de la Custom API a ejecutar |
 | **Fields To Send** | Texto | Input | No | Nombres lógicos separados por comas de los campos del formulario que se enviarán como parámetros a la Custom API (ej: `name,telephone1,emailaddress1`) |
-| **Disabled** | Sí/No | Input | No | Indica si el botón está deshabilitado |
+| **Disabled** | Sí/No | Bound | No | Indica si el botón está deshabilitado. Puede vincularse a una columna Sí/No de la tabla |
 
 > **Nota**: `Context Value` es un campo `Bound` (vinculado a una columna del formulario). Es necesario para que el control funcione en el **diseñador de formularios moderno**. Su valor se pasa automáticamente a la función JS y a la Custom API.
 
@@ -177,7 +177,7 @@ contextValue    → valor actual del campo vinculado en "Context Value"
 
 #### Ejemplo 4: Deshabilitar dinámicamente el botón
 
-Vincula la propiedad `Disabled` a un campo Sí/No del formulario mediante una regla de negocio, o usa la propiedad `Context Value` para pasar el estado al handler:
+Vincula la propiedad `Disabled` a una columna **Sí/No** de la tabla directamente desde el diseñador de formularios (activar el checkbox "Enlazar a columna de tabla"), o controla el estado mediante una regla de negocio sobre esa columna:
 
 ```javascript
 // El botón siempre está activo, pero la función comprueba el estado
