@@ -184,12 +184,38 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
   }
 
   /**
-   * Ejecutar una función JavaScript global
+   * Lee los campos del formulario indicados en fieldsToSend y devuelve sus valores.
+   * Usa Xrm.Page para acceder a atributos de cualquier columna del formulario.
+   */
+  private readFieldValues(): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (!this._fieldsToSend) return result;
+
+    const xrm = (globalThis as any).Xrm;
+    const formContext = xrm?.Page;
+    if (!formContext) return result;
+
+    const fieldNames = this._fieldsToSend.split(",").map((f: string) => f.trim()).filter(Boolean);
+    for (const fieldName of fieldNames) {
+      const attribute = formContext.getAttribute?.(fieldName);
+      if (attribute) {
+        result[fieldName] = attribute.getValue();
+      } else {
+        console.warn(`ActionButton: El campo '${fieldName}' no se encontró en el formulario`);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Ejecutar una función JavaScript global.
+   * La función recibe: (executionContext, contextValue, fieldValues)
+   * donde fieldValues es un objeto con los campos configurados en fieldsToSend.
    */
   private executeJavaScriptFunction(functionName: string): void {
     try {
-      // Obtener el contexto actual de la página
-      const formContext = (this._context as any).page;
+      const xrm = (globalThis as any).Xrm;
+      const formContext = xrm?.Page;
       const executionContext = {
         getFormContext: () => formContext,
         context: this._context,
@@ -211,11 +237,14 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
         throw new TypeError(`${functionName} no es una función válida`);
       }
 
-      // Ejecutar la función pasando el contexto
-      fn(executionContext, this._contextValue);
-      
-      console.log(`ActionButton: Función ${functionName} ejecutada correctamente`);
-      
+      // Leer los campos configurados en fieldsToSend
+      const fieldValues = this.readFieldValues();
+
+      // Ejecutar la función: fn(executionContext, contextValue, fieldValues)
+      fn(executionContext, this._contextValue, fieldValues);
+
+      console.log(`ActionButton: Función ${functionName} ejecutada correctamente`, { contextValue: this._contextValue, fieldValues });
+
     } catch (error) {
       console.error(`Error al ejecutar la función JavaScript ${functionName}:`, error);
       throw error;
@@ -228,19 +257,9 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
   private async executeCustomApi(apiLogicalName: string): Promise<void> {
     try {
       const xrm = (globalThis as any).Xrm;
-      const requestBody: Record<string, any> = {};
 
-      // Leer los campos del formulario indicados en fieldsToSend via Xrm.Page
-      if (this._fieldsToSend) {
-        const formContext = xrm?.Page;
-        const fieldNames = this._fieldsToSend.split(",").map((f: string) => f.trim()).filter(Boolean);
-        for (const fieldName of fieldNames) {
-          const attribute = formContext?.getAttribute?.(fieldName);
-          if (attribute) {
-            requestBody[fieldName] = attribute.getValue();
-          }
-        }
-      }
+      // Leer los campos del formulario configurados en fieldsToSend
+      const requestBody: Record<string, any> = this.readFieldValues();
 
       // Incluir contextValue si está configurado
       if (this._contextValue) {
