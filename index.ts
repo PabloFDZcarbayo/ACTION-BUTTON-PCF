@@ -199,7 +199,10 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
     for (const fieldName of fieldNames) {
       const attribute = formContext.getAttribute?.(fieldName);
       if (attribute) {
-        result[fieldName] = attribute.getValue();
+        const raw = attribute.getValue();
+        // Los campos lookup y multiselect devuelven arrays — los serializamos como JSON string
+        // para que la Custom API siempre reciba un valor primitivo
+        result[fieldName] = Array.isArray(raw) ? JSON.stringify(raw) : raw;
       } else {
         console.warn(`ActionButton: El campo '${fieldName}' no se encontró en el formulario`);
       }
