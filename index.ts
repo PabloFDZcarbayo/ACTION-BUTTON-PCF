@@ -227,15 +227,15 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
    */
   private async executeCustomApi(apiLogicalName: string): Promise<void> {
     try {
-      const pageContext = (this._context as any).page;
-
-      // Leer los campos del formulario indicados en fieldsToSend
+      const xrm = (globalThis as any).Xrm;
       const requestBody: Record<string, any> = {};
 
-      if (this._fieldsToSend && pageContext) {
+      // Leer los campos del formulario indicados en fieldsToSend via Xrm.Page
+      if (this._fieldsToSend) {
+        const formContext = xrm?.Page;
         const fieldNames = this._fieldsToSend.split(",").map((f: string) => f.trim()).filter(Boolean);
         for (const fieldName of fieldNames) {
-          const attribute = pageContext.getAttribute?.(fieldName);
+          const attribute = formContext?.getAttribute?.(fieldName);
           if (attribute) {
             requestBody[fieldName] = attribute.getValue();
           }
@@ -249,19 +249,41 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
 
       console.log(`ActionButton: Ejecutando Custom API ${apiLogicalName} con payload:`, requestBody);
 
-      const result = await (this._context.webAPI as any).executeFunction(
-        apiLogicalName,
-        requestBody
-      );
+      // Obtener la URL base del entorno
+      const clientUrl: string = xrm?.Utility?.getGlobalContext?.()?.getClientUrl?.() ?? "";
+      const apiUrl = `${clientUrl}/api/data/v9.2/${apiLogicalName}`;
 
-      console.log(`ActionButton: Custom API ${apiLogicalName} ejecutada correctamente`, result);
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          "OData-MaxVersion": "4.0",
+          "OData-Version": "4.0",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify(requestBody),
+        credentials: "same-origin"
+      });
+
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData?.error?.message ?? errorMessage;
+        } catch { /* ignorar error de parseo */ }
+        throw new Error(errorMessage);
+      }
+
+      console.log(`ActionButton: Custom API ${apiLogicalName} ejecutada correctamente`);
 
       this._context.navigation.openAlertDialog({
         text: "La acción se ejecutó correctamente."
       });
 
-      if (pageContext?.data?.refresh) {
-        await pageContext.data.refresh();
+      // Refrescar el formulario
+      if (xrm?.Page?.data?.refresh) {
+        xrm.Page.data.refresh(false);
       }
 
     } catch (error) {
