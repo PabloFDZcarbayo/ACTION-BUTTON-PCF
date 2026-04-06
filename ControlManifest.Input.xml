@@ -28,6 +28,8 @@
 
     <property name="fieldsToSend" display-name-key="FieldsToSend_Display_Key" description-key="FieldsToSend_Desc_Key" of-type="Multiple" usage="input" required="false" />
     
+    <property name="responseFieldToShow" display-name-key="ResponseFieldToShow_Display_Key" description-key="ResponseFieldToShow_Desc_Key" of-type="SingleLine.Text" usage="input" required="false" />
+    
     <property name="disabled" display-name-key="Disabled" description-key="Disabled" of-type="TwoOptions" usage="bound" required="false" default-value="false" />
     
     <!-- Recursos -->

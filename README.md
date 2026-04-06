@@ -7,8 +7,10 @@ Control PCF (PowerApps Component Framework) para Dynamics 365 que proporciona un
 - ✅ Botón personalizable con estilos FluentUI (Primary/Secondary)
 - ✅ Forma configurable: Rounded, Circular o Square
 - ✅ Tamaño configurable: Small, Medium o Large
-- ✅ Ejecuta funciones JavaScript personalizadas (recibe `executionContext` y `contextValue`)
+- ✅ Ejecuta funciones JavaScript personalizadas (recibe `executionContext`, `contextValue` y `fieldValues`)
 - ✅ Ejecuta Custom APIs de Dynamics 365 con envío automático de campos del formulario
+- ✅ **Indicador visual de loading** con spinner animado durante la ejecución
+- ✅ **Campo de respuesta personalizable** para mostrar mensajes específicos de la API
 - ✅ Totalmente configurable desde el diseñador de formularios moderno
 - ✅ Soporte para deshabilitar el botón dinámicamente
 - ✅ Manejo de errores y notificaciones al usuario
@@ -103,25 +105,39 @@ El control tiene las siguientes propiedades configurables:
 | **JavaScript Function Name** | Texto | Input | No | Nombre de la función JS global a ejecutar (ej: `MyNS.myFunction`) |
 | **Custom API Logical Name** | Texto | Input | No | Logical name de la Custom API a ejecutar |
 | **Fields To Send** | Texto | Input | No | Nombres lógicos separados por comas de los campos del formulario que se enviarán como parámetros a la Custom API (ej: `name,telephone1,emailaddress1`) |
+| **Response Field To Show** | Texto | Input | No | Nombre del campo de la respuesta JSON de la Custom API que se mostrará en el mensaje de éxito (ej: `message`, `result`). Si no se especifica, muestra un mensaje genérico |
 | **Disabled** | Sí/No | Bound | No | Indica si el botón está deshabilitado. Puede vincularse a una columna Sí/No de la tabla |
 
 > **Nota**: `Context Value` es un campo `Bound` (vinculado a una columna del formulario). Es necesario para que el control funcione en el **diseñador de formularios moderno**. Su valor se pasa automáticamente a la función JS y a la Custom API.
+
+### 🔄 Indicador de Loading
+
+Cuando se hace clic en el botón y se ejecuta una acción:
+- El botón muestra un **spinner animado** (rueda de progreso)
+- El texto cambia a **"Procesando..."**
+- El botón se **deshabilita automáticamente** para evitar múltiples clics
+- Una vez completada la acción, el botón vuelve a su estado normal
+
+Esto proporciona feedback visual inmediato al usuario de que la acción se está procesando.
 
 ### 3. Ejemplos de configuración
 
 #### Ejemplo 1: Ejecutar una función JavaScript
 
-La función recibe dos parámetros: `executionContext` (contexto del formulario) y `contextValue` (el valor del campo vinculado).
+La función recibe tres parámetros: `executionContext` (contexto del formulario), `contextValue` (el valor del campo vinculado), y `fieldValues` (objeto con los campos configurados en `Fields To Send`).
 
 ```javascript
 // En tu Web Resource JavaScript
 let MyNamespace = MyNamespace || {};
 
-MyNamespace.validateRecord = function(executionContext, contextValue) {
+MyNamespace.validateRecord = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     
     // contextValue contiene el valor del campo vinculado en "Context Value"
     console.log("Valor del contexto:", contextValue);
+    
+    // fieldValues contiene los campos configurados en "Fields To Send"
+    console.log("Campos enviados:", fieldValues);
     
     let accountName = formContext.getAttribute("name").getValue();
     
@@ -146,15 +162,16 @@ MyNamespace.validateRecord = function(executionContext, contextValue) {
 - JavaScript Function Name: `MyNamespace.validateRecord`
 - Context Value: *(vincular a un campo del formulario, o dejar vacío)*
 
-#### Ejemplo 2: Ejecutar una Custom API con campos del formulario
+#### Ejemplo 2: Ejecutar una Custom API con campos del formulario y respuesta personalizada
 
-Puedes enviar múltiples campos del formulario a tu Custom API usando `Fields To Send`:
+Puedes enviar múltiples campos del formulario a tu Custom API usando `Fields To Send` y mostrar un campo específico de la respuesta:
 
 **Configuración del control:**
 - Button Label: `Calcular Descuento`
 - Button Type: `Primary`
 - Custom API Logical Name: `ero_CalculateDiscount`
 - Fields To Send: `quantity,unitprice,discountpercentage`
+- Response Field To Show: `message`
 - Context Value: *(vincular al campo donde estará el resultado, por ejemplo `discountamount`)*
 
 La Custom API recibirá un request con los parámetros:
@@ -164,6 +181,17 @@ unitprice       → valor del campo "unitprice" del formulario
 discountpercentage → valor del campo "discountpercentage" del formulario
 contextValue    → valor actual del campo vinculado en "Context Value"
 ```
+
+Si tu Custom API retorna una respuesta JSON como:
+```json
+{
+  "status": "success",
+  "message": "Descuento calculado: $150.00",
+  "discountAmount": 150.00
+}
+```
+
+El usuario verá el mensaje: **"Descuento calculado: $150.00"** (el valor del campo `message`). Si no configuras `Response Field To Show`, se mostrará el mensaje genérico "La acción se ejecutó correctamente."
 
 #### Ejemplo 3: Botón circular y pequeño (icono-like)
 

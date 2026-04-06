@@ -23,6 +23,7 @@ interface IActionButtonProps {
   shape: number;
   size: number;
   disabled: boolean;
+  isLoading: boolean;
   onClick: () => void;
 }
 
@@ -30,10 +31,12 @@ interface IActionButtonProps {
  * Componente React del botón
  */
 const ActionButtonComponent: React.FC<IActionButtonProps> = (props) => {
-  const { label, isPrimary, shape, size, disabled, onClick } = props;
+  const { label, isPrimary, shape, size, disabled, isLoading, onClick } = props;
 
   // Estilos según shape: 0=Rounded, 1=Circular, 2=Square
-  const borderRadius = shape === 1 ? 9999 : shape === 2 ? 0 : 4;
+  let borderRadius = 4; // Rounded por defecto
+  if (shape === 1) borderRadius = 9999; // Circular
+  else if (shape === 2) borderRadius = 0; // Square
 
   // Estilos según size: 0=Small, 1=Medium, 2=Large
   const sizeStyles: Record<number, object> = {
@@ -55,11 +58,12 @@ const ActionButtonComponent: React.FC<IActionButtonProps> = (props) => {
   };
 
   const buttonProps = {
-    text: label,
-    disabled: disabled,
+    text: isLoading ? "Procesando..." : label,
+    disabled: disabled || isLoading,
     onClick: onClick,
     styles: buttonStyles,
     ariaLabel: label,
+    iconProps: isLoading ? { iconName: "ProgressRingDots" } : undefined,
   };
 
   if (isPrimary) {
@@ -83,7 +87,9 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
   private _jsFunctionName: string | null;
   private _customApiLogicalName: string | null;
   private _fieldsToSend: string | null;
+  private _responseFieldToShow: string | null;
   private _disabled: boolean;
+  private _isLoading: boolean;
 
   /**
    * Inicialización del control
@@ -97,6 +103,7 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
     this._context = context;
     this._container = container;
     this._notifyOutputChanged = notifyOutputChanged;
+    this._isLoading = false;
 
     // Cargar propiedades iniciales
     this.updateProperties(context);
@@ -113,15 +120,16 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
     this._buttonType = Number.parseInt(context.parameters.buttonType.raw as any, 10) || 0;
 
     const rawShape = Number.parseInt(context.parameters.shape.raw as any, 10);
-    this._shape = isNaN(rawShape) ? 0 : rawShape;
+    this._shape = Number.isNaN(rawShape) ? 0 : rawShape;
 
     const rawSize = Number.parseInt(context.parameters.buttonSize.raw as any, 10);
-    this._buttonSize = isNaN(rawSize) ? 1 : rawSize;
+    this._buttonSize = Number.isNaN(rawSize) ? 1 : rawSize;
 
     this._contextValue = context.parameters.contextValue.raw || null;
     this._jsFunctionName = context.parameters.jsFunctionName.raw || null;
     this._customApiLogicalName = context.parameters.customApiLogicalName.raw || null;
     this._fieldsToSend = context.parameters.fieldsToSend.raw || null;
+    this._responseFieldToShow = context.parameters.responseFieldToShow.raw || null;
     this._disabled = context.parameters.disabled.raw || false;
   }
 
@@ -147,6 +155,7 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
         shape: this._shape,
         size: this._buttonSize,
         disabled: this._disabled,
+        isLoading: this._isLoading,
         onClick: this.handleButtonClick.bind(this),
       }),
       this._container
@@ -157,7 +166,14 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
    * Manejador del clic del botón
    */
   private async handleButtonClick(): Promise<void> {
+    // Evitar múltiples clicks mientras se procesa
+    if (this._isLoading) return;
+
     try {
+      // Activar estado de loading
+      this._isLoading = true;
+      this.renderControl();
+
       // Prioridad 1: Ejecutar función JavaScript si está configurada
       if (this._jsFunctionName) {
         this.executeJavaScriptFunction(this._jsFunctionName);
@@ -180,6 +196,10 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
       this._context.navigation.openAlertDialog({
         text: `Error al ejecutar la acción: ${error instanceof Error ? error.message : String(error)}`
       });
+    } finally {
+      // Desactivar estado de loading
+      this._isLoading = false;
+      this.renderControl();
     }
   }
 
@@ -299,8 +319,28 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
 
       console.log(`ActionButton: Custom API ${apiLogicalName} ejecutada correctamente`);
 
+      // Parsear la respuesta y extraer el campo configurado
+      let successMessage = "La acción se ejecutó correctamente.";
+      
+      try {
+        const responseData = await response.json();
+        
+        // Si se configuró un campo específico para mostrar, extraerlo de la respuesta
+        if (this._responseFieldToShow && responseData) {
+          const fieldValue = responseData[this._responseFieldToShow];
+          if (fieldValue !== undefined && fieldValue !== null) {
+            successMessage = String(fieldValue);
+          } else {
+            console.warn(`ActionButton: El campo '${this._responseFieldToShow}' no se encontró en la respuesta de la API`);
+          }
+        }
+      } catch (parseError) {
+        // Si no hay JSON en la respuesta, usar el mensaje por defecto
+        console.log("ActionButton: La respuesta no contiene JSON, usando mensaje por defecto", parseError);
+      }
+
       this._context.navigation.openAlertDialog({
-        text: "La acción se ejecutó correctamente."
+        text: successMessage
       });
 
       // Refrescar el formulario

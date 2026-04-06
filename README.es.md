@@ -10,10 +10,21 @@ Control de botón personalizable para Dynamics 365 basado en FluentUI que permit
 |----------------|-------------|
 | 🎨 **FluentUI** | Botones con el diseño estándar de Microsoft (Primary/Secondary) |
 | ⚡ **Funciones JS** | Ejecuta cualquier función JavaScript global desde el formulario |
-| 🔌 **Custom APIs** | Llama directamente a tus Custom APIs de Dynamics 365 |
-| 🎛️ **Configurable** | Totalmente personalizable desde el diseñador de formularios |
+| 🔌 **Custom APIs** | Llama directamente a tus Custom APIs de Dynamics 365 || 🔄 **Indicador de Loading** | Muestra spinner animado durante la ejecución de acciones |
+| 💬 **Respuesta Personalizable** | Configura qué campo de la respuesta mostrar al usuario || 🎛️ **Configurable** | Totalmente personalizable desde el diseñador de formularios |
 | 🔒 **Seguro** | Manejo robusto de errores y validaciones |
 | 🔄 **Integrado** | Refresco automático del formulario y notificaciones |
+
+## 👍 Beneficios del Indicador de Loading
+
+Cuando se hace clic en el botón:
+- ✅ Se muestra un **spinner animado** que indica que el proceso está en ejecución
+- ✅ El texto del botón cambia a **"Procesando..."**
+- ✅ El botón se **deshabilita automáticamente** para evitar clics múltiples
+- ✅ Proporciona **feedback visual inmediato** al usuario
+- ✅ Mejora la **experiencia de usuario** significativamente
+
+Esto elimina la confusión de "si la acción se está ejecutando o no".
 
 ## 🎯 Casos de Uso
 
@@ -88,6 +99,18 @@ Facilita la navegación:
 - **Requerido**: No
 - **Formato**: `prefix_apiname`
 - **Ejemplo**: `tp_calculatediscount`
+
+### Fields To Send (Campos a Enviar)
+- **Tipo**: Texto (separados por comas)
+- **Requerido**: No
+- **Ejemplo**: `quantity,unitprice,discountpercentage`
+- **Descripción**: Campos del formulario que se enviarán como parámetros a la Custom API
+
+### Response Field To Show (Campo de Respuesta)
+- **Tipo**: Texto
+- **Requerido**: No
+- **Ejemplo**: `message`, `result`, `status`
+- **Descripción**: Campo de la respuesta JSON de la Custom API que se mostrará al usuario. Si no se especifica, se muestra un mensaje genérico.
 
 ### Disabled (Deshabilitado)
 - **Tipo**: Sí/No
