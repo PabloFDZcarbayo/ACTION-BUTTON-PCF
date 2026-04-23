@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="ERO" constructor="ActionButton" version="1.0.0" display-name-key="ActionButton" description-key="ActionButton" control-type="standard">
+  <control namespace="PFC" constructor="ActionButton" version="1.0.0" display-name-key="ActionButton" description-key="ActionButton" control-type="standard">
     
     <!-- Propiedades del control -->
     <property name="buttonLabel" display-name-key="ButtonLabel_Display_Key" description-key="ButtonLabel_Desc_Key" of-type="SingleLine.Text" usage="input" required="true" />    
