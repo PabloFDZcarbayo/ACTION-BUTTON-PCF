@@ -22,6 +22,8 @@
       <value name="Large" display-name-key="Large_Display_Key">2</value>
     </property>
     
+    <property name="webResource" display-name-key="WebResource_Display_Key" description-key="WebResource_Desc_Key" of-type="SingleLine.Text" usage="input" required="false" />
+    
     <property name="jsFunctionName" display-name-key="JSFunction" description-key="JSFunction" of-type="SingleLine.Text" usage="input" required="false" />
     
     <property name="customApiLogicalName" display-name-key="CustomApiName" description-key="CustomApiName" of-type="SingleLine.Text" usage="input" required="false" />

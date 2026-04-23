@@ -102,6 +102,7 @@ El control tiene las siguientes propiedades configurables:
 | **Button Type** | Enum | Input | No | Estilo del botón: `Primary` (0) o `Secondary` (1) |
 | **Shape** | Enum | Input | No | Forma del botón: `Rounded` (0), `Circular` (1) o `Square` (2) |
 | **Button Size** | Enum | Input | No | Tamaño: `Small` (0), `Medium` (1) o `Large` (2) |
+| **Web Resource** | Texto | Input | No | URL **completa** del Web Resource JavaScript a cargar antes de ejecutar la función (ej: `https://org.crm.dynamics.com/WebResources/ero_myscript.js`). Ver nota importante abajo |
 | **JavaScript Function Name** | Texto | Input | No | Nombre de la función JS global a ejecutar (ej: `MyNS.myFunction`) |
 | **Custom API Logical Name** | Texto | Input | No | Logical name de la Custom API a ejecutar |
 | **Fields To Send** | Texto | Input | No | Nombres lógicos separados por comas de los campos del formulario que se enviarán como parámetros a la Custom API (ej: `name,telephone1,emailaddress1`) |
@@ -109,6 +110,12 @@ El control tiene las siguientes propiedades configurables:
 | **Disabled** | Sí/No | Bound | No | Indica si el botón está deshabilitado. Puede vincularse a una columna Sí/No de la tabla |
 
 > **Nota**: `Context Value` es un campo `Bound` (vinculado a una columna del formulario). Es necesario para que el control funcione en el **diseñador de formularios moderno**. Su valor se pasa automáticamente a la función JS y a la Custom API.
+
+> ⚠️ **Importante - Web Resource URL**: El PCF se ejecuta dentro de un iframe con un origen diferente al de la aplicación. Por eso **no funcionan rutas relativas** como `/WebResources/ero_myscript.js`. Debes usar siempre la **URL absoluta completa** del entorno:
+> ```
+> https://<org>.crm4.dynamics.com/WebResources/ero_myscript.js
+> ```
+> Puedes obtener la URL base desde: Power Apps → Configuración → Recursos para desarrolladores → URL raíz del servicio web.
 
 ### 🔄 Indicador de Loading
 
@@ -122,12 +129,12 @@ Esto proporciona feedback visual inmediato al usuario de que la acción se está
 
 ### 3. Ejemplos de configuración
 
-#### Ejemplo 1: Ejecutar una función JavaScript
+#### Ejemplo 1: Ejecutar una función JavaScript desde un Web Resource externo
 
-La función recibe tres parámetros: `executionContext` (contexto del formulario), `contextValue` (el valor del campo vinculado), y `fieldValues` (objeto con los campos configurados en `Fields To Send`).
+Puedes cargar un Web Resource JavaScript externo para que sus funciones estén disponibles al pulsar el botón. La función recibe tres parámetros: `executionContext` (contexto del formulario), `contextValue` (el valor del campo vinculado), y `fieldValues` (objeto con los campos configurados en `Fields To Send`).
 
 ```javascript
-// En tu Web Resource JavaScript
+// En tu Web Resource JavaScript (ej: ero_myscript.js)
 let MyNamespace = MyNamespace || {};
 
 MyNamespace.validateRecord = function(executionContext, contextValue, fieldValues) {
@@ -159,8 +166,11 @@ MyNamespace.validateRecord = function(executionContext, contextValue, fieldValue
 - Button Type: `Primary`
 - Shape: `Rounded`
 - Button Size: `Medium`
-- JavaScript Function Name: `MyNamespace.validateRecord`
+- **Web Resource**: `https://<org>.crm4.dynamics.com/WebResources/ero_myscript.js` *(URL completa obligatoria)*
+- **JavaScript Function Name**: `MyNamespace.validateRecord`
 - Context Value: *(vincular a un campo del formulario, o dejar vacío)*
+
+> Si la función ya está cargada en el formulario mediante las Bibliotecas de formulario habituales, no es necesario rellenar **Web Resource** — basta con poner el nombre de la función.
 
 #### Ejemplo 2: Ejecutar una Custom API con campos del formulario y respuesta personalizada
 
@@ -222,13 +232,16 @@ MyNamespace.checkAndExecute = function(executionContext, contextValue) {
 };
 ```
 
-## 🔧 Prioridad de Ejecución
+## 🔧 Orden de Ejecución
 
-Cuando se hace clic en el botón:
+Cuando se hace clic en el botón, las acciones se ejecutan **secuencialmente** en este orden:
 
-1. **Primero** se verifica si hay una función JavaScript configurada → se ejecuta
-2. **Si no**, se verifica si hay una Custom API configurada → se ejecuta
-3. **Si no hay ninguna**, se muestra una advertencia en la consola
+1. **Web Resource** — Si está configurado, se carga el script externo (solo la primera vez; las siguientes se reutiliza el que ya está en el DOM)
+2. **Función JavaScript** — Si está configurada, se ejecuta una vez que el script esté disponible
+3. **Custom API** — Si está configurada, se ejecuta siempre **después** de la función JS (aunque también haya función JS)
+4. **Sin acción** — Si no hay ninguna de las dos configuradas, se muestra una advertencia en consola
+
+Esto permite combinar ambas: por ejemplo, ejecutar una validación JS local y luego llamar a una Custom API del servidor en el mismo clic.
 
 ## 🐛 Solución de Problemas
 
@@ -238,12 +251,19 @@ Cuando se hace clic en el botón:
 - Asegúrate de que el campo esté visible en el formulario
 - Revisa la consola del navegador para errores
 
+### Error al cargar el Web Resource
+
+- Asegúrate de usar la **URL absoluta completa** (ej: `https://<org>.crm4.dynamics.com/WebResources/ero_myscript.js`). Las rutas relativas como `/WebResources/...` no funcionan dentro del iframe del PCF
+- Verifica que el Web Resource esté publicado en el entorno
+- Comprueba en la consola del navegador si hay errores de CORS o 404
+- El Web Resource debe ser de tipo **Script (JScript)**
+
 ### Error al ejecutar función JavaScript
 
 - Verifica que el nombre de la función sea correcto (case-sensitive)
-- Asegúrate de que la biblioteca de JavaScript esté agregada al formulario
+- Si no usas **Web Resource**, asegúrate de que la biblioteca esté agregada a las **Bibliotecas de formulario**
 - La función debe estar disponible en el contexto global (`window`)
-- La función debe aceptar un parámetro `executionContext`
+- La función debe aceptar los parámetros `(executionContext, contextValue, fieldValues)`
 
 ### Error al ejecutar Custom API
 

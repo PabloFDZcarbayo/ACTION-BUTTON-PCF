@@ -4,8 +4,23 @@
  * Este archivo contiene ejemplos de funciones que puedes usar
  * con el control Action Button.
  * 
- * IMPORTANTE: Este archivo debe ser subido como Web Resource a Dynamics 365
- * y agregado a tu formulario para que las funciones estén disponibles.
+ * IMPORTANTE: Este archivo debe ser subido como Web Resource a Dynamics 365.
+ * 
+ * CONFIGURACIÓN DEL CONTROL (propiedad "Web Resource"):
+ * Debes indicar la URL COMPLETA del web resource. Las rutas relativas
+ * NO funcionan dentro del iframe del PCF.
+ * 
+ * ✅ CORRECTO:  https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ * ❌ INCORRECTO: /WebResources/ero_ActionButtonExamples.js
+ * 
+ * Puedes obtener la URL base desde:
+ * Power Apps → Configuración → Recursos para desarrolladores → URL raíz del servicio web
+ * 
+ * FIRMA DE LAS FUNCIONES:
+ * Todas las funciones reciben tres parámetros:
+ *   - executionContext: contexto del formulario ({ getFormContext(), context })
+ *   - contextValue:     valor del campo vinculado en "Context Value"
+ *   - fieldValues:      objeto { campo: valor } con los campos de "Fields To Send"
  */
 
 // Crear un namespace para evitar conflictos
@@ -13,8 +28,12 @@ let ActionButtonExamples = ActionButtonExamples || {};
 
 /**
  * Ejemplo 1: Validar campos requeridos antes de guardar
+ * 
+ * Configuración del control:
+ *   Web Resource:             https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ *   JavaScript Function Name: ActionButtonExamples.validateRequiredFields
  */
-ActionButtonExamples.validateRequiredFields = function(executionContext) {
+ActionButtonExamples.validateRequiredFields = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     
     // Lista de campos a validar
@@ -43,8 +62,13 @@ ActionButtonExamples.validateRequiredFields = function(executionContext) {
 
 /**
  * Ejemplo 2: Calcular un valor basado en otros campos
+ * 
+ * Configuración del control:
+ *   Web Resource:             https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ *   JavaScript Function Name: ActionButtonExamples.calculateTotal
+ *   Fields To Send:           quantity,unitprice,discount  (opcional, para ver los valores en fieldValues)
  */
-ActionButtonExamples.calculateTotal = function(executionContext) {
+ActionButtonExamples.calculateTotal = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     
     // Obtener valores
@@ -67,8 +91,12 @@ ActionButtonExamples.calculateTotal = function(executionContext) {
 
 /**
  * Ejemplo 3: Abrir un diálogo de confirmación antes de realizar una acción
+ * 
+ * Configuración del control:
+ *   Web Resource:             https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ *   JavaScript Function Name: ActionButtonExamples.confirmAndExecute
  */
-ActionButtonExamples.confirmAndExecute = function(executionContext) {
+ActionButtonExamples.confirmAndExecute = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     
     let confirmStrings = {
@@ -107,8 +135,12 @@ ActionButtonExamples.performAction = function(formContext) {
 
 /**
  * Ejemplo 4: Navegar a otro registro
+ * 
+ * Configuración del control:
+ *   Web Resource:             https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ *   JavaScript Function Name: ActionButtonExamples.openRelatedRecord
  */
-ActionButtonExamples.openRelatedRecord = function(executionContext) {
+ActionButtonExamples.openRelatedRecord = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     
     // Obtener el ID del registro relacionado
@@ -131,8 +163,12 @@ ActionButtonExamples.openRelatedRecord = function(executionContext) {
 
 /**
  * Ejemplo 5: Ejecutar una acción del servidor con Web API
+ * 
+ * Configuración del control:
+ *   Web Resource:             https://<org>.crm4.dynamics.com/WebResources/ero_ActionButtonExamples.js
+ *   JavaScript Function Name: ActionButtonExamples.executeCustomAction
  */
-ActionButtonExamples.executeCustomAction = function(executionContext) {
+ActionButtonExamples.executeCustomAction = function(executionContext, contextValue, fieldValues) {
     let formContext = executionContext.getFormContext();
     let recordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
     let entityName = formContext.data.entity.getEntityName();

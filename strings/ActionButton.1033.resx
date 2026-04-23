@@ -98,6 +98,14 @@
     <value>Secondary</value>
     <comment>Botón secundario</comment>
   </data>
+  <data name="WebResource_Display_Key" xml:space="preserve">
+    <value>Web Resource</value>
+    <comment>Web resource JS a cargar antes de ejecutar la función</comment>
+  </data>
+  <data name="WebResource_Desc_Key" xml:space="preserve">
+    <value>URL o nombre del web resource JavaScript a cargar (ej: /WebResources/new_myscript.js)</value>
+    <comment>Descripción del web resource</comment>
+  </data>
   <data name="JSFunction_Display_Key" xml:space="preserve">
     <value>JavaScript Function Name</value>
     <comment>Nombre de la función JS</comment>

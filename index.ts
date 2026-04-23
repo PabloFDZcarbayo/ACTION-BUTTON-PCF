@@ -84,6 +84,8 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
   private _shape: number;
   private _buttonSize: number;
   private _contextValue: string | null;
+  private _webResource: string | null;
+  private _scriptLoadPromise: Promise<void> | null;
   private _jsFunctionName: string | null;
   private _customApiLogicalName: string | null;
   private _fieldsToSend: string | null;
@@ -104,9 +106,15 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
     this._container = container;
     this._notifyOutputChanged = notifyOutputChanged;
     this._isLoading = false;
+    this._scriptLoadPromise = null;
 
     // Cargar propiedades iniciales
     this.updateProperties(context);
+
+    // Cargar el web resource externo si está configurado
+    if (this._webResource) {
+      this._scriptLoadPromise = this.loadExternalScript(this._webResource);
+    }
     
     // Renderizar el control
     this.renderControl();
@@ -126,6 +134,7 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
     this._buttonSize = Number.isNaN(rawSize) ? 1 : rawSize;
 
     this._contextValue = context.parameters.contextValue.raw || null;
+    this._webResource = context.parameters.webResource.raw || null;
     this._jsFunctionName = context.parameters.jsFunctionName.raw || null;
     this._customApiLogicalName = context.parameters.customApiLogicalName.raw || null;
     this._fieldsToSend = context.parameters.fieldsToSend.raw || null;
@@ -174,20 +183,24 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
       this._isLoading = true;
       this.renderControl();
 
-      // Prioridad 1: Ejecutar función JavaScript si está configurada
+      // Paso 1: Ejecutar función JavaScript si está configurada
       if (this._jsFunctionName) {
+        // Esperar a que el web resource externo termine de cargarse (si hay uno)
+        if (this._scriptLoadPromise !== null) {
+          await this._scriptLoadPromise;
+        }
         this.executeJavaScriptFunction(this._jsFunctionName);
-        return;
       }
 
-      // Prioridad 2: Ejecutar Custom API si está configurada
+      // Paso 2: Ejecutar Custom API si está configurada (siempre, independientemente de la función JS)
       if (this._customApiLogicalName) {
         await this.executeCustomApi(this._customApiLogicalName);
-        return;
       }
 
       // Si no hay ninguna acción configurada, mostrar advertencia
-      console.warn("ActionButton: No se ha configurado ninguna acción (función JS o Custom API)");
+      if (!this._jsFunctionName && !this._customApiLogicalName) {
+        console.warn("ActionButton: No se ha configurado ninguna acción (función JS o Custom API)");
+      }
       
     } catch (error) {
       console.error("ActionButton - Error al ejecutar la acción:", error);
@@ -228,6 +241,26 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
       }
     }
     return result;
+  }
+
+  /**
+   * Cargar dinámicamente un web resource JavaScript externo.
+   * Si el script ya existe en el DOM, resuelve inmediatamente.
+   */
+  private loadExternalScript(url: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const existing = document.querySelector(`script[src="${url}"]`);
+      if (existing) {
+        resolve();
+        return;
+      }
+      const scriptNode = document.createElement("script");
+      scriptNode.setAttribute("type", "text/javascript");
+      scriptNode.setAttribute("src", url);
+      scriptNode.onload = () => resolve();
+      scriptNode.onerror = () => reject(new Error(`No se pudo cargar el web resource: ${url}`));
+      document.head.appendChild(scriptNode);
+    });
   }
 
   /**
