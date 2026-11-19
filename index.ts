@@ -390,10 +390,8 @@ export class ActionButton implements ComponentFramework.StandardControl<IInputs,
   /**
    * Obtener los valores de salida del control
    */
-  public getOutputs(): IOutputs {
-    return {
-      disabled: this._disabled
-    };
+ public getOutputs(): IOutputs {
+    return {};
   }
 
   /**
